@@ -80,7 +80,7 @@ export class Decoder<T> {
  * Represents the property of an object to decode. See [object](#object) for
  * more details.
  */
-export type EntryDecoder<T> = [string, Decoder<T>]
+export type EntryDecoder<T> = [string, Decoder<T>] | [string, Decoder<T>]
 
 function prettyPrint (value: any): string {
   if (value === null) {
@@ -161,6 +161,60 @@ export function boolean (): Decoder<boolean> {
       throw decoderError({
         at,
         expected: 'boolean',
+        got: obj
+      })
+    }
+
+    return obj
+  })
+}
+
+/**
+ * @returns A Decoder that decodes a null.
+ */
+export function null_ (): Decoder<null> {
+  return createDecoder((obj, at) => {
+    if (obj !== null) {
+      throw decoderError({
+        at,
+        expected: 'null',
+        got: obj
+      })
+    }
+    return obj
+  })
+}
+
+/**
+ * @returns A Decoder that decodes either a null or the type of the provided decoder.
+ */
+export function nullable<T> (other: Decoder<T>): Decoder<null | T> {
+  return oneOf(other, null_());
+}
+
+
+/**
+ * @returns A Decoder that always succeeds with the value that it finds as an any.
+ */
+export function any (): Decoder<any> {
+  return createDecoder((obj, _) => {
+    return obj
+  })
+}
+
+
+/**
+ * @returns A Decoder that succeeds with an `object` type if the value found is of type "object".
+ * Doesn't do anything with object fields. If you're looking to decode the contents of an object
+ * with a known shape, use the `object` decoder. This is for when you want to know something is
+ * an object, but you don't care what's inside.
+ */
+export function opaqueObject (): Decoder<object> {
+  return createDecoder((obj, at) => {
+    if (typeof obj !== 'object') {
+      throw decoderError({
+        at,
+        expected: 'object',
         got: obj
       })
     }
