@@ -9,7 +9,7 @@
     "typings": "typings install",
     "test": "tsc && node util/test.js",
     "docs": "typedoc --out docs --excludeNotExported --excludePrivate src",
-    "postinstall": "npm build"
+    "postinstall": "npm run build"
   },
   "repository": {
     "type": "git",
